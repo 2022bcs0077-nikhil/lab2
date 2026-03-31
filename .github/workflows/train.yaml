@@ -28,6 +28,11 @@ jobs:
         run: |
           python train.py
 
+      - name: Debug files
+        run: |
+          pwd
+          ls -R
+
       - name: Write metrics to Job Summary
         run: |
           echo "## Experiment Results" >> $GITHUB_STEP_SUMMARY
@@ -35,7 +40,12 @@ jobs:
           echo "**Roll No:** 2022BCS0077" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Metrics" >> $GITHUB_STEP_SUMMARY
-          cat outputs/results.json >> $GITHUB_STEP_SUMMARY
+
+          if [ -f outputs/results.json ]; then
+            cat outputs/results.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "results.json not found" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload trained model
         uses: actions/upload-artifact@v4
