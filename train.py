@@ -38,7 +38,7 @@ def main():
     X_train_selected = selector.fit_transform(X_train_scaled, y_train)
     X_test_selected = selector.transform(X_test_scaled)
 
-    # 5. Train model (Random Forest - 200 trees)
+    # 5. Train model
     model = RandomForestRegressor(
         n_estimators=200,
         random_state=42,
@@ -51,16 +51,17 @@ def main():
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    # 7. Save outputs
-    os.makedirs("output", exist_ok=True)
-    joblib.dump(model, "output/model.pkl")
+    # 7. Save outputs (FIXED PATH)
+    os.makedirs("outputs", exist_ok=True)
+
+    joblib.dump(model, "outputs/model.joblib")
 
     metrics = {
-        "Mean Squared Error": mse,
-        "R2 Score": r2
+        "mse": mse,
+        "r2": r2
     }
 
-    with open("output/metrics.json", "w") as f:
+    with open("outputs/results.json", "w") as f:
         json.dump(metrics, f, indent=4)
 
     # 8. Print metrics
