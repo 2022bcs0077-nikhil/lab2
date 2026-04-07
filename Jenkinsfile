@@ -86,27 +86,95 @@ pipeline {
                 sh '''
                 echo "Sending valid request..."
 
-                RESPONSE=$(docker exec $CONTAINER_NAME sh -c '
                 RESPONSE=$(cat tests/valid_input.json | docker exec -i $CONTAINER_NAME sh -c '
                     curl -s -w "\\n%{http_code}" -X POST \
                     http://localhost:8000/predict \
                     -H "Content-Type: application/json" \
-                    -d @/tests/valid_input.json
                     -d @-
                 ')
 
                 BODY=$(echo "$RESPONSE" | head -n 1)
-@@ -122,11 +122,11 @@
+                STATUS=$(echo "$RESPONSE" | tail -n 1)
+
+                echo "Status Code: $STATUS"
+                echo "Response Body: $BODY"
+
+                if [ "$STATUS" != "200" ]; then
+                    echo "Valid request failed!"
+                    exit 1
+                fi
+
+                echo "$BODY" | grep -q "prediction" || {
+                    echo "Prediction field missing!"
+                    exit 1
+                }
+
+                echo "Valid inference test passed."
+                '''
+            }
+        }
+
+        // -----------------------------
+        // Stage 5: Invalid Request Test
+        // -----------------------------
+        stage('Send Invalid Request') {
+            steps {
                 sh '''
                 echo "Sending invalid request..."
 
-                RESPONSE=$(docker exec $CONTAINER_NAME sh -c '
                 RESPONSE=$(cat tests/invalid_input.json | docker exec -i $CONTAINER_NAME sh -c '
                     curl -s -w "\\n%{http_code}" -X POST \
                     http://localhost:8000/predict \
                     -H "Content-Type: application/json" \
-                    -d @/tests/invalid_input.json
                     -d @-
                 ')
 
                 BODY=$(echo "$RESPONSE" | head -n 1)
+                STATUS=$(echo "$RESPONSE" | tail -n 1)
+
+                echo "Status Code: $STATUS"
+                echo "Response Body: $BODY"
+
+                if [ "$STATUS" = "200" ]; then
+                    echo "Invalid request unexpectedly succeeded!"
+                    exit 1
+                fi
+
+                echo "Invalid request test passed."
+                '''
+            }
+        }
+
+        // -----------------------------
+        // Stage 6: Stop Container
+        // -----------------------------
+        stage('Stop Container') {
+            steps {
+                sh '''
+                echo "Stopping and removing container..."
+                docker stop $CONTAINER_NAME || true
+                docker rm $CONTAINER_NAME || true
+                '''
+            }
+        }
+    }
+
+    // -----------------------------
+    // Stage 7: Final Result
+    // -----------------------------
+    post {
+        success {
+            echo "All validation tests passed. Pipeline SUCCESS. 2022BCS0028"
+        }
+        failure {
+            echo "Pipeline FAILED due to validation error. 2022BCS0028"
+        }
+        always {
+            sh '''
+            echo "Ensuring container cleanup..."
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
+            '''
+        }
+    }
+}
