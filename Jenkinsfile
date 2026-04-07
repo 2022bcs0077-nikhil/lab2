@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.10'
+            args '-u root'
+        }
+    }
 
     stages {
 
@@ -16,21 +21,16 @@ pipeline {
 
         stage('Create Virtual Environment') {
             steps {
-                sh '''
-                python3 -m venv venv
-                '''
-                sh 'python3 -m venv venv'
+                sh 'python -m venv venv'
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 sh '''
-                source venv/bin/activate
+                . venv/bin/activate
                 pip install --upgrade pip
                 pip install -r requirements.txt
-                ./venv/bin/pip install --upgrade pip
-                ./venv/bin/pip install -r requirements.txt
                 '''
             }
         }
@@ -38,9 +38,8 @@ pipeline {
         stage('Run Training Script') {
             steps {
                 sh '''
-                source venv/bin/activate
-                python3 train.py
-                ./venv/bin/python train.py
+                . venv/bin/activate
+                python train.py
                 '''
             }
         }
@@ -50,8 +49,6 @@ pipeline {
                 sh '''
                 echo "======================================"
                 echo "Model training completed successfully!"
-                echo "Name: GOLLA NIKHIL"
-                echo "Roll No: 2022BCS0077"
                 echo "======================================"
                 '''
             }
