@@ -198,10 +198,10 @@ pipeline {
     // -----------------------------
     post {
         success {
-            echo "All validation tests passed. Pipeline SUCCESS. 2022BCS0028"
+            echo "All validation tests passed. Pipeline SUCCESS. 2022BCS0077"
         }
         failure {
-            echo "Pipeline FAILED due to validation error. 2022BCS0028"
+            echo "Pipeline FAILED due to validation error. 2022BCS0077"
         }
         // always {
         //     sh '''
