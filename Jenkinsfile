@@ -19,9 +19,10 @@ pipeline {
 
                 docker run --rm \
                 -v ${WORKSPACE}:/app \
-                -w /app/lab2 \
+                -w /app \
                 python:3.10 \
                 bash -c "
+                ls -la &&
                 pip install -r requirements.txt &&
                 python train.py
                 "
