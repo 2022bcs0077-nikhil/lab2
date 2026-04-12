@@ -15,16 +15,17 @@ pipeline {
         stage('Train Model (Docker)') {
             steps {
                 sh '''
-                echo "Training model inside Docker..."
+                echo "===== DEBUG: SHOWING FILE STRUCTURE ====="
 
                 docker run --rm \
                 -v ${WORKSPACE}:/app \
-                -w /app/lab2 \
                 python:3.10 \
                 bash -c "
-                ls -la &&
-                pip install -r requirements.txt &&
-                python train.py
+                echo '--- ROOT ---' &&
+                ls -la /app &&
+
+                echo '--- RECURSIVE ---' &&
+                ls -R /app
                 "
                 '''
             }
