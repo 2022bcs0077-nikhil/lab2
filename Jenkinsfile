@@ -12,21 +12,19 @@ pipeline {
         // -----------------------------
         // Stage 1: Pull Image
         // -----------------------------
-        stage('Install Dependencies') {
+        stage('Train Model (Docker)') {
             steps {
                 sh '''
-                echo "Installing dependencies..."
+                echo "Training model inside Docker..."
 
-                python3 -m pip install --upgrade pip
-                pip install -r requirements.txt
-                '''
-            }
-        }
-        stage('Train Model') {
-            steps {
-                sh '''
-                echo "Training model..."
-                python3 train.py
+                docker run --rm \
+                -v ${WORKSPACE}:/app \
+                -w /app \
+                python:3.10 \
+                bash -c "
+                pip install -r requirements.txt &&
+                python train.py
+                "
                 '''
             }
         }
