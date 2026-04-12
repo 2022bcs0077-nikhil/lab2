@@ -28,7 +28,23 @@ pipeline {
             steps {
                 sh '''
                 echo "Starting container..."
-                docker run -d --name $CONTAINER_NAME -v ${WORKSPACE}/tests:/tests $IMAGE_NAME
+
+                # remove old container
+                docker rm -f $CONTAINER_NAME || true
+
+                # run new container
+                docker run -d --name $CONTAINER_NAME \
+                -v ${WORKSPACE}/tests:/tests \
+                $IMAGE_NAME
+
+                echo "Waiting 5 seconds..."
+                sleep 5
+
+                echo "===== CONTAINER STATUS ====="
+                docker ps -a
+
+                echo "===== CONTAINER LOGS ====="
+                docker logs $CONTAINER_NAME || true
                 '''
             }
         }
@@ -148,15 +164,15 @@ pipeline {
         // -----------------------------
         // Stage 6: Stop Container
         // -----------------------------
-        stage('Stop Container') {
-            steps {
-                sh '''
-                echo "Stopping and removing container..."
-                docker stop $CONTAINER_NAME || true
-                docker rm $CONTAINER_NAME || true
-                '''
-            }
-        }
+        // stage('Stop Container') {
+        //     steps {
+        //         sh '''
+        //         echo "Stopping and removing container..."
+        //         docker stop $CONTAINER_NAME || true
+        //         docker rm $CONTAINER_NAME || true
+        //         '''
+        //     }
+        // }
     }
 
     // -----------------------------
@@ -169,12 +185,12 @@ pipeline {
         failure {
             echo "Pipeline FAILED due to validation error. 2022BCS0028"
         }
-        always {
-            sh '''
-            echo "Ensuring container cleanup..."
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-            '''
-        }
+        // always {
+        //     sh '''
+        //     echo "Ensuring container cleanup..."
+        //     docker stop $CONTAINER_NAME || true
+        //     docker rm $CONTAINER_NAME || true
+        //     '''
+        // }
     }
 }
