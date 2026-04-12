@@ -12,6 +12,16 @@ pipeline {
         // -----------------------------
         // Stage 1: Pull Image
         // -----------------------------
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                echo "Installing dependencies..."
+
+                python3 -m pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
+            }
+        }
         stage('Train Model') {
             steps {
                 sh '''
