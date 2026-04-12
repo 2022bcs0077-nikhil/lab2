@@ -81,8 +81,8 @@ def predict_wine_quality(data: WineInput):
         prediction = model.predict(features_selected)
 
         return {
-            "name": "Karri Lakshmi Narasimha Reddy",
-            "roll_no": "2022BCS0028",
+            "name": "Golla Nikhil",
+            "roll_no": "2022BCS0077",
             "prediction": int(prediction[0])
         }
 
