@@ -19,7 +19,7 @@ pipeline {
 
                 docker run --rm \
                 -v ${WORKSPACE}:/app \
-                -w /app \
+                -w /app/lab2 \
                 python:3.10 \
                 bash -c "
                 pip install -r requirements.txt &&
