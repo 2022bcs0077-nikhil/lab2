@@ -12,6 +12,14 @@ pipeline {
         // -----------------------------
         // Stage 1: Pull Image
         // -----------------------------
+        stage('Train Model') {
+            steps {
+                sh '''
+                echo "Training model..."
+                python3 train.py
+                '''
+            }
+        }
         stage('Pull Image') {
             steps {
                 sh '''

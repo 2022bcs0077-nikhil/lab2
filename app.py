@@ -9,8 +9,14 @@ app = FastAPI(
     version="1.0"
 )
 
-# Load trained model
-model = joblib.load("output/model.pkl")
+# -----------------------------
+# Load trained model bundle
+# -----------------------------
+bundle = joblib.load("outputs/model.joblib")
+
+model = bundle["model"]
+scaler = bundle["scaler"]
+selector = bundle["selector"]
 
 
 # -----------------------------
@@ -47,28 +53,38 @@ def health_check():
 
 
 # -----------------------------
-# Prediction Endpoint (JSON)
+# Prediction Endpoint
 # -----------------------------
 @app.post("/predict")
 def predict_wine_quality(data: WineInput):
-    features = np.array([[  
-        data.fixed_acidity,
-        data.volatile_acidity,
-        data.citric_acid,
-        data.residual_sugar,
-        data.chlorides,
-        data.free_sulfur_dioxide,
-        data.total_sulfur_dioxide,
-        data.density,
-        data.pH,
-        data.sulphates,
-        data.alcohol
-    ]])
+    try:
+        # Convert input to numpy array
+        features = np.array([[  
+            data.fixed_acidity,
+            data.volatile_acidity,
+            data.citric_acid,
+            data.residual_sugar,
+            data.chlorides,
+            data.free_sulfur_dioxide,
+            data.total_sulfur_dioxide,
+            data.density,
+            data.pH,
+            data.sulphates,
+            data.alcohol
+        ]])
 
-    prediction = model.predict(features)
+        # Apply SAME preprocessing as training
+        features_scaled = scaler.transform(features)
+        features_selected = selector.transform(features_scaled)
 
-    return {
-        "name": "Karri Lakshmi Narasimha Reddy",
-        "roll_no": "2022BCS0028",
-        "prediction": int(prediction[0])
-    }
+        # Prediction
+        prediction = model.predict(features_selected)
+
+        return {
+            "name": "Karri Lakshmi Narasimha Reddy",
+            "roll_no": "2022BCS0028",
+            "prediction": int(prediction[0])
+        }
+
+    except Exception as e:
+        return {"error": str(e)}

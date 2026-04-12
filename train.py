@@ -11,7 +11,9 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 def main():
+    # -----------------------------
     # 1. Load dataset
+    # -----------------------------
     red_path = "dataset/wine+quality/winequality-red.csv"
     white_path = "dataset/wine+quality/winequality-white.csv"
 
@@ -20,7 +22,9 @@ def main():
 
     data = pd.concat([red, white], axis=0)
 
+    # -----------------------------
     # 2. Split features and target
+    # -----------------------------
     X = data.drop("quality", axis=1)
     y = data["quality"]
 
@@ -28,17 +32,23 @@ def main():
         X, y, test_size=0.2, random_state=42
     )
 
+    # -----------------------------
     # 3. Standardization
+    # -----------------------------
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
+    # -----------------------------
     # 4. Feature Selection
+    # -----------------------------
     selector = SelectKBest(score_func=f_regression, k=8)
     X_train_selected = selector.fit_transform(X_train_scaled, y_train)
     X_test_selected = selector.transform(X_test_scaled)
 
+    # -----------------------------
     # 5. Train model
+    # -----------------------------
     model = RandomForestRegressor(
         n_estimators=200,
         random_state=42,
@@ -46,15 +56,23 @@ def main():
     )
     model.fit(X_train_selected, y_train)
 
+    # -----------------------------
     # 6. Evaluation
+    # -----------------------------
     y_pred = model.predict(X_test_selected)
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
-    # 7. Save outputs (FIXED PATH)
+    # -----------------------------
+    # 7. Save outputs
+    # -----------------------------
     os.makedirs("outputs", exist_ok=True)
 
-    joblib.dump(model, "outputs/model.joblib")
+    joblib.dump({
+        "model": model,
+        "scaler": scaler,
+        "selector": selector
+    }, "outputs/model.joblib")
 
     metrics = {
         "mse": mse,
@@ -64,7 +82,9 @@ def main():
     with open("outputs/results.json", "w") as f:
         json.dump(metrics, f, indent=4)
 
+    # -----------------------------
     # 8. Print metrics
+    # -----------------------------
     print("Model Evaluation Results")
     print("------------------------")
     print(f"MSE: {mse:.4f}")
