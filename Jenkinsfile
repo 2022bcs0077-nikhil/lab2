@@ -12,24 +12,24 @@ pipeline {
         // -----------------------------
         // Stage 1: Pull Image
         // -----------------------------
-        stage('Train Model (Docker)') {
-            steps {
-                sh '''
-                echo "===== DEBUG: SHOWING FILE STRUCTURE ====="
+        // stage('Train Model (Docker)') {
+        //     steps {
+        //         sh '''
+        //         echo "===== DEBUG: SHOWING FILE STRUCTURE ====="
 
-                docker run --rm \
-                -v ${WORKSPACE}:/app \
-                python:3.10 \
-                bash -c "
-                echo '--- ROOT ---' &&
-                ls -la /app &&
+        //         docker run --rm \
+        //         -v ${WORKSPACE}:/app \
+        //         python:3.10 \
+        //         bash -c "
+        //         echo '--- ROOT ---' &&
+        //         ls -la /app &&
 
-                echo '--- RECURSIVE ---' &&
-                ls -R /app
-                "
-                '''
-            }
-        }
+        //         echo '--- RECURSIVE ---' &&
+        //         ls -R /app
+        //         "
+        //         '''
+        //     }
+        // }
         stage('Pull Image') {
             steps {
                 sh '''
